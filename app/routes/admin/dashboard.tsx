@@ -49,6 +49,7 @@ const Dashboard = () => {
                             key={id}
                             id={id.toString()}
                             name={name}
+                            //@ts-ignore
                             imageUrl={imageUrls}
                             price={estimatedPrice}
                             tags={tags}
