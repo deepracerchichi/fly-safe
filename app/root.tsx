@@ -1,3 +1,4 @@
+
 import {
   isRouteErrorResponse,
   Links,
@@ -10,7 +11,6 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import {registerLicense} from "@syncfusion/ej2-base";
-
 registerLicense(import.meta.env.VITE_SYNCFUSION_LICENSE_KEY)
 
 export const links: Route.LinksFunction = () => [
@@ -63,6 +63,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     details = error.message;
     stack = error.stack;
   }
+
 
   return (
     <main className="pt-16 p-4 container mx-auto">
