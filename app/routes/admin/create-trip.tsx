@@ -8,7 +8,7 @@ export const loader = async()=>{
       try {
 
 
-          const response = await fetch('https://restcountries.com/v3.1/all');
+          const response = await fetch('https://restcountries.com/v3.1/all?fields=name,flags,latlng,maps');
 
           //Check if response is okay
           if (!response.ok) {
@@ -19,14 +19,16 @@ export const loader = async()=>{
           const data = await response.json();
 
           if (!Array.isArray(data)) {
-              console.error('Expected array got this: ', typeof data);
+              console.log('Expected array got this: ', typeof data);
               return [];
           }
 
 
+
           return data.map((country: any) => (
               {
-                  name: country.flag + country.name.common,
+                  name: country.name.common,
+                  flagUrl: country.flags.png,
                   coordinates: country.latlng,
                   value: country.name.common,
                   openStreetMap: country.maps?.openStreetMap,
@@ -43,6 +45,13 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
     const handleSubmit = async ()=> {};
     const countries = loaderData as Country[];
     console.log(countries);
+    const countryData=countries.map((country)=>(
+        {
+            text:  country.name,
+            value: country.value,
+            flagUrl: country.flagUrl,
+        }
+    ))
 
     return (
         <main className='flex flex-col gap-10 pb-20 wrapper'>
@@ -57,7 +66,16 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
                         </label>
                         <ComboBoxComponent
                             id='country'
-                            dataSource={countries}
+                            dataSource={countryData}
+                            fields={{text: 'text', value: 'value',}}
+                            placeholder='Select a country'
+                            className='combo-box'
+                            itemTemplate={(data:any)=>(
+                                <div className='flex items-center'>
+                                    <img src={data.flagUrl} className='w-5 h-3 ml-4' alt='flag'/>
+                                    <h3 className='ml-[-12px]'>{data.text}</h3>
+                                </div>
+                            )}
                         />
                     </div>
                 </form>
