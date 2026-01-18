@@ -42,6 +42,10 @@ export const loader = async()=>{
 
 const CreateTrip = ({loaderData}: Route.ComponentProps) => {
 
+
+    const handleChange=(key:keyof TripFormData, value: string | number)=> {
+
+    }
     const handleSubmit = async ()=> {};
     const countries = loaderData as Country[];
     console.log(countries);
@@ -76,6 +80,33 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
                                     <h3 className='ml-[-12px]'>{data.text}</h3>
                                 </div>
                             )}
+                            valueTemplate={(data: any)=>(
+                                <div className='flex flex-row items-center'>
+                                    <img src={data.flagUrl} className='w-5 h-3' alt='flag'/>
+                                    <h3 className='ml-[-6px]'>{data.text}</h3>
+                                </div>
+                            )}
+                            change={(e: {value: string | undefined})=>{
+                                if(e.value) {
+                                    handleChange('country', e.value)
+                            }}}
+                            allowFiltering={true}
+                            filtering={(e)=>{
+                                const query=e.text.toLowerCase();
+
+                                e.updateData(
+                                    countries.filter(
+                                        (country)=>
+                                        country.name.toLowerCase().includes(query)
+                                    ).map((
+                                        (country) =>({
+                                            text: country.name,
+                                            value: country.value,
+                                            flagUrl: country.flagUrl,
+                                        })
+                                    ))
+                                )
+                            }}
                         />
                     </div>
                 </form>
