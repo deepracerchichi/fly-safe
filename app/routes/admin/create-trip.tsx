@@ -1,10 +1,14 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {Header} from "../../../components";
 import {ComboBoxComponent} from "@syncfusion/ej2-react-dropdowns";
 import type {Route} from './+types/create-trip';
+import {comboBoxItems, selectItems} from "~/constants";
+import {formatKey} from "~/lib/utils";
+import {LayerDirective, LayersDirective, MapsComponent} from "@syncfusion/ej2-react-maps";
+import {world_map} from "~/constants/world_map";
 
 export const loader = async()=>{
-      
+
       try {
 
 
@@ -41,13 +45,22 @@ export const loader = async()=>{
 }
 
 const CreateTrip = ({loaderData}: Route.ComponentProps) => {
+    const countries = loaderData as Country[];
 
+    const [formData, setFormData]= useState<TripFormData>({
+        country: countries[0]?.name || '',
+        travelStyle: '',
+        interest:'',
+        budget:'',
+        duration:0,
+        groupType:''
+    });
 
     const handleChange=(key:keyof TripFormData, value: string | number)=> {
 
     }
     const handleSubmit = async ()=> {};
-    const countries = loaderData as Country[];
+
     console.log(countries);
     const countryData=countries.map((country)=>(
         {
@@ -56,6 +69,14 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
             flagUrl: country.flagUrl,
         }
     ))
+
+    const mapData = [
+        {
+            country: formData.country,
+            color: '#ea382e',
+            coordinates: countries.find((c:Country)=> c.name === formData.country)?.coordinates || []
+        }
+    ]
 
     return (
         <main className='flex flex-col gap-10 pb-20 wrapper'>
@@ -108,6 +129,74 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
                                 )
                             }}
                         />
+                    </div>
+
+                    <div>
+                        <label htmlFor='Duration'>Duration</label>
+                        <input
+                            id='duration'
+                            name='duration'
+                            placeholder='Enter a number of days'
+                            className='form-input placehlder:text-gray-100'
+                            onChange={(e)=> handleChange( 'duration', Number(e.target.value))}
+                        />
+                    </div>
+
+                    {selectItems.map((key)=>(
+                        <div key={key}>
+                            <label htmlFor='Group Type'>{formatKey(key)}</label>
+
+                            <ComboBoxComponent
+                                id={key}
+                                dataSource={comboBoxItems[key].map((item)=>(
+                                    {
+                                        text:item,
+                                        value:item,
+                                    }
+                                ))}
+                                fields={{text: 'text', value: 'value'}}
+                                placeholder={`Select ${formatKey(key)}`}
+                                change={(e: {value: string | undefined})=>{
+                                    if(e.value) {
+                                        handleChange(key, e.value)
+                                    }}}
+                                allowFiltering={true}
+                                filtering={(e)=>{
+                                    const query=e.text.toLowerCase();
+
+                                    e.updateData(
+                                        comboBoxItems[key].filter(
+                                            (item)=>
+                                                item.toLowerCase().includes(query)
+                                        ).map((
+                                            (item) =>({
+                                                text: item,
+                                                value: item,
+                                            })
+                                        ))
+                                    )
+                                }}
+                                className='combo-box'
+                            />
+                        </div>
+                    ))}
+
+
+                    <div>
+                        <label htmlFor='Location'>
+                            Location on the World Map
+                        </label>
+                        <MapsComponent>
+                            <LayersDirective>
+                                <LayerDirective
+                                    shapeData={world_map}
+                                    dataSource={mapData}
+                                    shapeDataPath='name'
+                                    shapePropertyPath='country'
+                                    shapeSettings={{colorValuePath: 'color', fill: '#e5e5e5'}}
+                                />
+                            </LayersDirective>
+                        </MapsComponent>
                     </div>
                 </form>
             </section>
