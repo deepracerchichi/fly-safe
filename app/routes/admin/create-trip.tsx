@@ -54,7 +54,36 @@ const CreateTrip = ({ loaderData }: Route.ComponentProps) => {
     const handleChange = (key: keyof TripFormData, value: string | number) =>
         setFormData({ ...formData, [key]: value });
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event:React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        setLoading(true);
+        if(!formData.country||!formData.travelStyle||!formData.groupType||!formData.duration||!formData.budget||!formData.interest) {
+            setError('Please provide values for all the fields');
+            setLoading(false);
+            return;
+        }
+
+        if(formData.duration<1 || formData.duration>10){
+            setError('Duration must be between 1 and ten days')
+            setLoading(false);
+            return;
+        }
+
+        const user =await account.get();
+        if(!user.$id) {
+            console.error('User not authenticated');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            console.log('user', user);
+            console.log('form data', formData);
+        } catch (e) {
+            console.error('Error generating trip', e)
+        } finally {
+            setLoading(false)
+        }
 
     };
 
