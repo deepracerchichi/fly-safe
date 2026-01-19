@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {use, useState} from "react";
 import { useNavigate } from "react-router";
 import { ButtonComponent } from "@syncfusion/ej2-react-buttons";
 import { ComboBoxComponent } from "@syncfusion/ej2-react-dropdowns";
@@ -47,6 +47,8 @@ const CreateTrip = ({ loaderData }: Route.ComponentProps) => {
         groupType: "",
     });
 
+    const [error, setError]=useState<string | null>(null)
+    const [loading, setLoading]=useState(false)
 
 
     const handleChange = (key: keyof TripFormData, value: string | number) =>
@@ -166,6 +168,29 @@ const CreateTrip = ({ loaderData }: Route.ComponentProps) => {
                             </LayersDirective>
                         </MapsComponent>
                     </div>
+
+
+                    <div className='bg-gray-200 h-px w-full' />
+
+                    {error && (
+                        <div className='error'>
+                            <p>{error}</p>
+                        </div>
+                    )}
+
+                    <footer className='px-6 w-full'>
+                        <ButtonComponent
+                            type='submit'
+                            className="button-class !h-12 !w-full"
+                            disabled={loading}
+                            >
+                            <img src={`/assets/icons/${loading ? 'loader.svg' : 'magic-star.svg'}`} />
+
+                            <span className='p-16-semibold text-white'>
+                                {loading? 'Generating...': 'Generate Trip'}
+                            </span>
+                        </ButtonComponent>
+                    </footer>
 
                 </form>
             </section>
