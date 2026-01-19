@@ -18,16 +18,11 @@ import {Header} from "../../../components";
 
 
 export async function loader() {
-    const response = await fetch("https://restcountries.com/v3.1/all?fields=name,flag,latlng,maps");
-
-    if (!response.ok) {
-        throw new Response("Failed to fetch countries", { status: response.status });
-    }
-
+    const response = await fetch("https://restcountries.com/v3.1/all");
     const data = await response.json();
 
     return data.map((country: any) => ({
-        name: country.flag + " " + country.name.common,
+        name: country.flag + country.name.common,
         coordinates: country.latlng,
         value: country.name.common,
         openStreetMap: country.maps?.openStreetMaps,
