@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {use, useState} from "react";
 import { useNavigate } from "react-router";
 import { ButtonComponent } from "@syncfusion/ej2-react-buttons";
 import { ComboBoxComponent } from "@syncfusion/ej2-react-dropdowns";
@@ -18,11 +18,16 @@ import {Header} from "../../../components";
 
 
 export async function loader() {
-    const response = await fetch("https://restcountries.com/v3.1/all");
+    const response = await fetch("https://restcountries.com/v3.1/all?fields=name,flag,latlng,maps");
+
+    if (!response.ok) {
+        throw new Response("Failed to fetch countries", { status: response.status });
+    }
+
     const data = await response.json();
 
     return data.map((country: any) => ({
-        name: country.flag + country.name.common,
+        name: country.flag + " " + country.name.common,
         coordinates: country.latlng,
         value: country.name.common,
         openStreetMap: country.maps?.openStreetMaps,
@@ -42,12 +47,43 @@ const CreateTrip = ({ loaderData }: Route.ComponentProps) => {
         groupType: "",
     });
 
+    const [error, setError]=useState<string | null>(null)
+    const [loading, setLoading]=useState(false)
 
 
     const handleChange = (key: keyof TripFormData, value: string | number) =>
         setFormData({ ...formData, [key]: value });
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event:React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        setLoading(true);
+        if(!formData.country||!formData.travelStyle||!formData.groupType||!formData.duration||!formData.budget||!formData.interest) {
+            setError('Please provide values for all the fields');
+            setLoading(false);
+            return;
+        }
+
+        if(formData.duration<1 || formData.duration>10){
+            setError('Duration must be between 1 and ten days')
+            setLoading(false);
+            return;
+        }
+
+        const user=await account.get();
+        if(!user.$id) {
+            console.error('User not authenticated');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            console.log('user', user);
+            console.log('form data', formData);
+        } catch (e) {
+            console.error('Error generating trip', e)
+        } finally {
+            setLoading(false)
+        }
 
     };
 
@@ -161,6 +197,33 @@ const CreateTrip = ({ loaderData }: Route.ComponentProps) => {
                             </LayersDirective>
                         </MapsComponent>
                     </div>
+
+
+                    <div className='bg-gray-200 h-px w-full' />
+
+                    {error && (
+                        <div className='error'>
+                            <p>{error}</p>
+                        </div>
+                    )}
+
+                    <footer className='px-6 w-full'>
+                        <ButtonComponent
+                            type='submit'
+                            className="button-class !h-12 !w-full"
+                            disabled={loading}
+                        >
+                            <img src={`/assets/icons/${loading ? 'loader.svg' : 'magic-star.svg'}`}
+                                 className={cn('size-5', {
+                                     'animate-spin': loading
+                                 })}
+                            />
+
+                            <span className='p-16-semibold text-white'>
+                                {loading? 'Generating...': 'Generate Trip'}
+                            </span>
+                        </ButtonComponent>
+                    </footer>
 
                 </form>
             </section>
